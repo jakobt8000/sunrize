@@ -1,0 +1,30 @@
+name: Build SUNRIZE (Mac)
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -B build -G Xcode -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+
+      - name: Build
+        run: cmake --build build --config Release --target SUNRIZE_VST3 SUNRIZE_AU -- -quiet
+
+      - name: Collect plugins
+        run: |
+          mkdir -p out
+          cp -R build/SUNRIZE_artefacts/Release/VST3/SUNRIZE.vst3 out/
+          cp -R build/SUNRIZE_artefacts/Release/AU/SUNRIZE.component out/
+          codesign --force --deep -s - out/SUNRIZE.vst3
+          codesign --force --deep -s - out/SUNRIZE.component
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SUNRIZE-mac
+          path: out
