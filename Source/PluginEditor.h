@@ -3,6 +3,10 @@
 #include "PluginProcessor.h"
 #include <juce_gui_basics/juce_gui_basics.h>
 
+// Overall size of the plugin window. The whole UI is designed at 1620 x 280
+// and drawn at this scale (0.7 -> 1134 x 196).
+static constexpr float uiScale = 0.7f;
+
 //==============================================================================
 class SunrizeLook : public juce::LookAndFeel_V4
 {
@@ -45,7 +49,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     std::function<void()> onClose;
-    static constexpr float scale = 280.0f / 165.0f;   // same height as the synth
+    static constexpr float scale = 280.0f * uiScale / 165.0f;   // same height as the synth
     static constexpr float pad = 16.0f;               // padding from every edge (design px)
 private:
     juce::Image logo;
@@ -67,6 +71,7 @@ private:
     void timerCallback() override;
     void stepSound (int delta);
     juce::Font mono (float size, float kerning = 0.08f) const;
+    void repaintDesign (juce::Rectangle<int> r);
 
     SunrizeAudioProcessor& proc;
     SunrizeLook look;
